@@ -8,7 +8,7 @@ CC = clang++
 # 	* set the include directory to ./include
 # 	* compile the file without linking.
 CXXFLAGS = -Wall -Werror -Wextra -std=c++2a -Iinclude -c
-SRC = src/main.cpp src/matrix.cpp src/linear_model.cpp
+SRC = src/main.cpp src/matrix.cpp src/stat_util.cpp src/linear_model.cpp
 
 OBJ_DIR = obj
 BIN_DIR = bin
@@ -23,7 +23,7 @@ $(OBJ_DIR):
 $(BIN_DIR):
 	mkdir bin
 
-$(BIN_DIR)/$(PROG): obj/main.o obj/matrix.o obj/linear_model.o
+$(BIN_DIR)/$(PROG): obj/main.o obj/matrix.o obj/stat_util.o obj/linear_model.o
 	$(CC) $^ -o $@
 	./bin/prog
 
