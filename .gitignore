@@ -1,0 +1,8 @@
+
+# bin and obj are generated
+
+bin
+bin/*
+
+obj
+obj/*
