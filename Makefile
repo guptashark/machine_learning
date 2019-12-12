@@ -13,6 +13,8 @@ SRC = src/main.cpp src/matrix.cpp src/stat_util.cpp src/linear_model.cpp
 OBJ_DIR = obj
 BIN_DIR = bin
 SRC_DIR = src
+INC_DIR = include
+
 PROG = prog
 
 all: $(OBJ_DIR) $(BIN_DIR) $(BIN_DIR)/$(PROG)
@@ -27,8 +29,11 @@ $(BIN_DIR)/$(PROG): obj/main.o obj/matrix.o obj/stat_util.o obj/linear_model.o
 	$(CC) $^ -o $@
 	./bin/prog
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CC) $(CXXFLAGS) $^ -o $@
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(INC_DIR)/%.h
+	$(CC) $(CXXFLAGS) $< -o $@
+
+$(OBJ_DIR)/main.o: src/main.cpp include/matrix.h include/stat_util.h include/linear_model.h
+	$(CC) $(CXXFLAGS) $< -o $@
 
 # Now need to have management of build include dependencies.
 
