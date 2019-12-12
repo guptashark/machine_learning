@@ -1,4 +1,33 @@
 #include <vector>
+#include <optional>
+
+namespace stat_util_experimental {
+
+	using array_like = std::vector<std::vector<double> >;
+
+	// while pythons numpy.mean will flatten the 2darray
+	// if it is 2d, for now, lets instead do something
+	// a little more restrictive. If mean is given a
+	// 2d array, it also will get an axis, and if none
+	// are provided, then it's an error. Mean will also
+	// take a 1d array and operate as expected.
+
+	struct mean_args_A {
+		const array_like &a;
+		std::optional<int> axis = std::nullopt;
+	};
+
+	struct mean_args_C {
+		const std::vector<double> &a;
+	};
+
+
+	std::vector<double>
+	mean(struct mean_args_A ma);
+
+	double
+	mean ( struct mean_args_C ma);
+}
 
 namespace stat_util {
 

@@ -1,5 +1,59 @@
 #include <vector>
 
+#include "stat_util.h"
+
+namespace stat_util_experimental {
+
+	using array_like = std::vector<std::vector<double> >;
+
+	// currently only supports axis 0 and 1.
+	std::vector<double>
+	mean(struct mean_args_A ma) {
+
+		if ( ! ma.axis.has_value() ) {
+			// TODO can't compute, need to throw excp.
+			return {};
+		}
+
+		// can compute.
+
+		std::vector<double> averages;
+
+		// row based;
+		if ( *(ma.axis) == 1) {
+			for( const std::vector<double> & row : ma.a ) {
+				averages.push_back(mean({row}));
+			}
+		} else if ( *(ma.axis) == 0) {
+			for(std::size_t j = 0; j < ma.a[0].size(); j++) {
+				double col_mean = 0;
+
+				for(std::size_t i = 0; i < ma.a.size(); i++) {
+					col_mean += ma.a[i][j];
+				}
+
+				averages.push_back(col_mean / ma.a[0].size());
+			}
+		} else {
+			// throw an exception.
+			return {};
+		}
+
+		return averages;
+	}
+
+	double
+	mean ( struct mean_args_C ma) {
+
+		double sum = 0;
+		for ( auto val : ma.a ) {
+			sum += val;
+		}
+
+		return sum / ma.a.size();
+	}
+}
+
 namespace stat_util {
 
 	using array_like = std::vector<std::vector<double> >;

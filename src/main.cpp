@@ -4,11 +4,30 @@
 
 #include "matrix.h"
 #include "linear_model.h"
+#include "stat_util.h"
 
 int main(int argc, char *argv[]) {
 
 	(void)argc;
        	(void)argv;
+
+	{
+		using stat_util_experimental::mean;
+
+		std::vector<std::vector<double> > X_2d = {
+			{1, 2}, {3, 4}
+		};
+
+		std::vector<double> X_1d = { 5, 6, 7, 8};
+
+		auto res_01 = mean({X_2d, 0});
+		std::cout << res_01.size() << std::endl;
+		std::cout << res_01[0] << " " << res_01[1] << std::endl;
+
+		auto res_02 = mean({.a=X_2d, .axis=1});
+		std::cout << res_02.size() << std::endl;
+		std::cout << res_02[0] << " " << res_02[1] << std::endl;
+	}
 
 	{
 		std::vector<std::vector<double> > X = {

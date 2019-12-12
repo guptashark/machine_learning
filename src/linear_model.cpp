@@ -5,9 +5,6 @@
 #include "matrix.h"
 #include "linear_model.h"
 
-// we'll put this (the util stuff) somewhere else,
-// but for now, lets have it here
-
 // NOTE: std::vector<std::vector<double> >
 // is a vector of vectors. Each of the internal vectors
 // are columns, vs each of the internal vectors being
