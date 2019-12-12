@@ -7,6 +7,10 @@ namespace stat_util_experimental {
 	using array_like = std::vector<std::vector<double> >;
 
 	// currently only supports axis 0 and 1.
+	// TODO actually throw exceptions
+	// TODO put the computes in another fn, to avoid
+	// nesting too deep. Also makes sense, since the
+	// logic seems fairly similar.
 	std::vector<double>
 	mean(struct mean_args_A ma) {
 
@@ -14,8 +18,6 @@ namespace stat_util_experimental {
 			// TODO can't compute, need to throw excp.
 			return {};
 		}
-
-		// can compute.
 
 		std::vector<double> averages;
 
@@ -25,14 +27,18 @@ namespace stat_util_experimental {
 				averages.push_back(mean({row}));
 			}
 		} else if ( *(ma.axis) == 0) {
-			for(std::size_t j = 0; j < ma.a[0].size(); j++) {
+
+			const std::size_t m = ma.a.size();
+			const std::size_t n = ma.a.front().size();
+
+			for(std::size_t j = 0; j < n; j++) {
 				double col_mean = 0;
 
-				for(std::size_t i = 0; i < ma.a.size(); i++) {
+				for(std::size_t i = 0; i < m; i++) {
 					col_mean += ma.a[i][j];
 				}
 
-				averages.push_back(col_mean / ma.a[0].size());
+				averages.push_back(col_mean / n);
 			}
 		} else {
 			// throw an exception.
@@ -42,12 +48,73 @@ namespace stat_util_experimental {
 		return averages;
 	}
 
+	std::vector<double>
+	var(struct mean_args_A ma) {
+
+		if ( ! ma.axis.has_value() ) {
+			// TODO can't compute, need to throw excp.
+			return {};
+		}
+
+		std::vector<double> variances;
+
+		// row based;
+		if ( *(ma.axis) == 1) {
+			for( const std::vector<double> & row : ma.a ) {
+				variances.push_back( var ( {row} ));
+			}
+		} else if ( *(ma.axis) == 0) {
+
+			// this notation makes it easier
+			std::vector<double> means = mean( {ma.a, ma.axis} );
+
+			const std::size_t m = ma.a.size();
+			const std::size_t n = ma.a.front().size();
+
+			for(std::size_t j = 0; j < n; j++) {
+
+				double x_mean = means[j];
+
+				// short for col_variance
+				double col_var = 0;
+
+				for(std::size_t i = 0; i < m; i++) {
+					double term = ma.a[i][j] - x_mean;
+					col_var += term * term;
+				}
+
+				variances.push_back(col_var / n);
+			}
+		} else {
+			// throw an exception.
+			return {};
+		}
+
+		return variances;
+	}
+
 	double
 	mean ( struct mean_args_C ma) {
 
 		double sum = 0;
 		for ( auto val : ma.a ) {
 			sum += val;
+		}
+
+		return sum / ma.a.size();
+	}
+
+	double
+	var ( struct mean_args_C ma) {
+
+		// TODO - optimize this, so we don't recompute means.
+		// inefficient for now, but it's okay, optimize later.
+
+		double x_mean = mean( ma );
+
+		double sum = 0;
+		for ( auto val : ma.a ) {
+			sum += (val - x_mean) * (val - x_mean);
 		}
 
 		return sum / ma.a.size();

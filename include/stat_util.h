@@ -27,6 +27,12 @@ namespace stat_util_experimental {
 
 	double
 	mean ( struct mean_args_C ma);
+
+	std::vector<double>
+	var(struct mean_args_A ma);
+
+	double
+	var ( struct mean_args_C ma);
 }
 
 namespace stat_util {
