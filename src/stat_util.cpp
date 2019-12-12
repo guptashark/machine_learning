@@ -6,6 +6,17 @@ namespace stat_util_experimental {
 
 	using array_like = std::vector<std::vector<double> >;
 
+	double
+	mean ( struct mean_args_C ma) {
+
+		double sum = 0;
+		for ( auto val : ma.a ) {
+			sum += val;
+		}
+
+		return sum / ma.a.size();
+	}
+
 	// currently only supports axis 0 and 1.
 	// TODO actually throw exceptions
 	// TODO put the computes in another fn, to avoid
@@ -46,6 +57,22 @@ namespace stat_util_experimental {
 		}
 
 		return averages;
+	}
+
+	double
+	var ( struct mean_args_C ma) {
+
+		// TODO - optimize this, so we don't recompute means.
+		// inefficient for now, but it's okay, optimize later.
+
+		double x_mean = mean( ma );
+
+		double sum = 0;
+		for ( auto val : ma.a ) {
+			sum += (val - x_mean) * (val - x_mean);
+		}
+
+		return sum / ma.a.size();
 	}
 
 	std::vector<double>
@@ -91,33 +118,6 @@ namespace stat_util_experimental {
 		}
 
 		return variances;
-	}
-
-	double
-	mean ( struct mean_args_C ma) {
-
-		double sum = 0;
-		for ( auto val : ma.a ) {
-			sum += val;
-		}
-
-		return sum / ma.a.size();
-	}
-
-	double
-	var ( struct mean_args_C ma) {
-
-		// TODO - optimize this, so we don't recompute means.
-		// inefficient for now, but it's okay, optimize later.
-
-		double x_mean = mean( ma );
-
-		double sum = 0;
-		for ( auto val : ma.a ) {
-			sum += (val - x_mean) * (val - x_mean);
-		}
-
-		return sum / ma.a.size();
 	}
 }
 
