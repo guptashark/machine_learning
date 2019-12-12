@@ -25,7 +25,7 @@ $(OBJ_DIR):
 $(BIN_DIR):
 	mkdir bin
 
-$(BIN_DIR)/$(PROG): obj/main.o obj/matrix.o obj/stat_util.o obj/linear_model.o
+$(BIN_DIR)/$(PROG): obj/main.o obj/matrix.o obj/stat_util.o obj/linear_model.o obj/tests.o
 	$(CC) $^ -o $@
 	./bin/prog
 
