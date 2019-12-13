@@ -12,6 +12,9 @@ public:
 
 	Matrix(const Matrix& B);
 
+	// TODO: many improvements.
+	Matrix(const std::vector<std::vector<double> > & arr_2d);
+
 	// each of the vectors need to be the same size.
 	// otherwise, will fail, and should... throw?
 	Matrix(std::initializer_list<std::vector<double>> init);

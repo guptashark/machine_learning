@@ -12,6 +12,16 @@ Matrix::Matrix(std::size_t rows, std::size_t cols) {
 	}
 }
 
+
+using array_like = std::vector<std::vector<double> >;
+
+// TODO
+// initialize off of a 2d array, make our own copy.
+// Later, we can probably do a move ctor, with less copying
+// and the like. Right now, just make sure this works.
+// TODO: Bounds checking... can't take any old 2d array.
+Matrix::Matrix(const array_like & arr_2d): elements(arr_2d) {}
+
 Matrix::Matrix(std::initializer_list<std::vector<double>> init) {
 
 	auto it = init.begin();

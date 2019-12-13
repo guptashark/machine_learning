@@ -7,7 +7,7 @@
 #include "tests.h"
 
 // Helpful for printing stuff!
-void v_prnt(const std::vector<double> &v) {
+static void v_prnt(const std::vector<double> &v) {
 
 	std::cout << "[";
 
@@ -18,7 +18,7 @@ void v_prnt(const std::vector<double> &v) {
 	std::cout << v[v.size() - 1] << "]" << std::endl;
 }
 
-void arr_2d_prnt(std::vector<std::vector<double> > & A) {
+static void arr_2d_prnt(std::vector<std::vector<double> > & A) {
 
 	std::cout << "Begin matrix:" << std::endl;
 
@@ -28,6 +28,8 @@ void arr_2d_prnt(std::vector<std::vector<double> > & A) {
 
 	std::cout << "End matrix" << std::endl;
 }
+
+
 
 static void test_cov(void);
 
@@ -168,4 +170,17 @@ static void test_cov(void) {
 		arr_2d_prnt(r);
 	}
 
+}
+
+void test_matrix(void) {
+
+	std::vector<std::vector<double> > X = {
+		{1, 2},
+		{3, 4},
+		{5, 6},
+		{7, 8, 9}
+	};
+
+	Matrix m(X);
+	m.print();
 }
