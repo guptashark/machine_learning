@@ -32,6 +32,9 @@ namespace stat_util_experimental {
 
 	std::vector<double>
 	var(struct mean_args_A ma);
+
+	std::vector<std::vector<double> >
+	cov(struct mean_args_A ma);
 }
 
 namespace stat_util {

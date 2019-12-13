@@ -1,11 +1,39 @@
 #include <cassert>
+#include <vector>
 
 #include "matrix.h"
 #include "linear_model.h"
 #include "stat_util.h"
 #include "tests.h"
 
+// Helpful for printing stuff!
+void v_prnt(const std::vector<double> &v) {
+
+	std::cout << "[";
+
+	for ( std::size_t i = 0; i < v.size() - 1; i++ ) {
+		std::cout << v[i] << ", ";
+	}
+
+	std::cout << v[v.size() - 1] << "]" << std::endl;
+}
+
+void arr_2d_prnt(std::vector<std::vector<double> > & A) {
+
+	std::cout << "Begin matrix:" << std::endl;
+
+	for ( std::vector<double> & v : A ) {
+		v_prnt ( v );
+	}
+
+	std::cout << "End matrix" << std::endl;
+}
+
+static void test_cov(void);
+
 void test_stat_util(void) {
+
+	test_cov();
 
 	using stat_util_experimental::mean;
 	using stat_util_experimental::var;
@@ -109,4 +137,35 @@ void test_linear_model(void) {
 		for (auto val : p  ) std::cout << val << " ";
 		std::cout << std::endl;
 	}
+}
+
+static void test_cov(void) {
+
+	using stat_util_experimental::cov;
+
+	std::vector<std::vector<double> > X_0 = {
+		{1, 2, 3, 4, 5, 6, 7},
+		{4, 5, 6, 7, 8, 9, 10},
+		{9, 9, 9, 9, 9, 9, 9}
+	};
+
+	(void)X_0;
+
+	std::vector<std::vector<double> > X_1 = {
+		{0, 1, 2},
+		{2, 1, 0},
+	};
+	auto r = cov ( {X_1} );
+
+	arr_2d_prnt(r);
+	{
+		std::vector<std::vector<double> > X = {
+			{-2.1, -1, 4.3},
+			{3, 1.1, 0.12},
+		};
+
+		auto r = cov ({X});
+		arr_2d_prnt(r);
+	}
+
 }

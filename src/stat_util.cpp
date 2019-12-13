@@ -119,6 +119,49 @@ namespace stat_util_experimental {
 
 		return variances;
 	}
+
+	std::vector<std::vector<double> >
+	cov(struct mean_args_A ma) {
+
+		const std::size_t n = ma.a.size();
+		array_like covs(n, std::vector<double>(n));
+		std::vector<double> means = mean( {ma.a, .axis=1} );
+		const array_like &A = ma.a;
+
+		// first do the diagonal... which has to be 1?
+		for(std::size_t i = 0; i < n; i++) {
+
+			double c = 0.0;
+			const std::vector<double> &v = A[i];
+
+			for(std::size_t j = 0; j < v.size(); j++) {
+				c += (v[j] - means[i]) * (v[j] - means[i]);
+			}
+
+			covs[i][i] = c / n;
+		}
+
+		for(std::size_t i = 0; i < n; i++) {
+
+			for(std::size_t j = i+1; j < n; j++) {
+
+				double c = 0.0;
+				const std::vector<double> &v = A[i];
+				const std::vector<double> &w = A[j];
+
+				for(std::size_t k = 0; k < v.size(); k++) {
+					double v_term = v[k] - means[i];
+					double w_term = w[k] - means[j];
+					c += v_term * w_term;
+				}
+
+				covs[i][j] = c/n;
+				covs[j][i] = c/n;
+			}
+		}
+
+		return covs;
+	}
 }
 
 namespace stat_util {
