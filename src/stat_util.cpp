@@ -121,9 +121,16 @@ namespace stat_util_experimental {
 	}
 
 	std::vector<std::vector<double> >
-	cov(struct mean_args_A ma) {
+	cov(struct cov_args ma) {
 
-		const std::size_t n = ma.a.size();
+		const std::size_t n = ma.a.size(); 	// rows
+		std::size_t m = ma.a[0].size(); 	// columns
+
+		// bias is guaranteed to have a value.
+		if ( ! ma.bias ) {
+			m = m - 1;
+		}
+
 		array_like covs(n, std::vector<double>(n));
 		std::vector<double> means = mean( {ma.a, .axis=1} );
 		const array_like &A = ma.a;
@@ -138,7 +145,7 @@ namespace stat_util_experimental {
 				c += (v[j] - means[i]) * (v[j] - means[i]);
 			}
 
-			covs[i][i] = c / n;
+			covs[i][i] = c / m;
 		}
 
 		for(std::size_t i = 0; i < n; i++) {
@@ -155,8 +162,8 @@ namespace stat_util_experimental {
 					c += v_term * w_term;
 				}
 
-				covs[i][j] = c/n;
-				covs[j][i] = c/n;
+				covs[i][j] = c/m;
+				covs[j][i] = c/m;
 			}
 		}
 

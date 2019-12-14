@@ -21,6 +21,11 @@ namespace stat_util_experimental {
 		const std::vector<double> &a;
 	};
 
+	struct cov_args {
+		const array_like &a;
+		bool bias = false;
+	};
+
 	double
 	mean ( struct mean_args_C ma);
 
@@ -34,7 +39,7 @@ namespace stat_util_experimental {
 	var(struct mean_args_A ma);
 
 	std::vector<std::vector<double> >
-	cov(struct mean_args_A ma);
+	cov(struct cov_args ma);
 }
 
 namespace stat_util {
