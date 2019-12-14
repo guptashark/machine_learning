@@ -35,8 +35,6 @@ LinearRegression &LinearRegression::fit
 	std::vector<double> x_means; // mean of each column.
 	std::vector<double> x_y_cov; // covariances of each x col with y.
 
-	Matrix A ( n, n ); // store x_covariances in matrix
-
 	// separate loops to avoid recalculating means to find covariances.
 	for(std::size_t i = 0; i < n; i++) {
 		x_means.push_back( mean(X[i]) );
@@ -46,19 +44,8 @@ LinearRegression &LinearRegression::fit
 		x_y_cov.push_back( cov(X[i], y, x_means[i], y_mean) );
 	}
 
-	for ( std::size_t i = 0; i < n; i++) {
-		A[i][i] = var( X[i], x_means[i] );
-	}
-
-	for ( std::size_t i = 0; i < n; i++) {
-		for ( std::size_t j = i + 1 ; j < n; j++) {
-
-			double r = cov(X[i], X[j], x_means[i], x_means[j] );
-
-			A[i][j] = r;
-			A[j][i] = r;
-		}
-	}
+	// bias bc we want to divide by N, not N-1
+	Matrix A ( stat_util_experimental::cov({X, .bias=true}) );
 
 	// Solving Ax = b
 	Matrix B ( n, 1);
