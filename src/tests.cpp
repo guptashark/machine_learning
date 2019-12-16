@@ -33,6 +33,30 @@ void test_stat_util(void) {
 }
 
 void test_linear_model(void) {
+	using linear_model::LinearRegression;
+	{
+		std::vector<std::vector<double> > X = {
+			{1, 1, 1},
+			{2, 3, 4},
+			{3, 4, 5},
+			{4, 5, 6},
+			{5., 6, 7}
+		};
+
+		std::vector<double> y(5);
+		bool exception_thrown = false;
+
+		try {
+			auto reg = LinearRegression{}.fit(X, y);
+		}
+
+		catch ( const char *s ) {
+			// do nothing with it, we're supposed to catch.
+			exception_thrown = true;
+		}
+
+		assert(exception_thrown);
+	}
 
 	{
 		std::vector<std::vector<double> > X = {
@@ -50,7 +74,7 @@ void test_linear_model(void) {
 		assert( 1.0 == reg.score(X, y) );
 
 		std::vector<std::vector<double> > X_test = {
-			{ -9.0, -2.0, 0.0, 1000.0 }
+			{-9.0}, {-2.0}, {0.0}, {1000.0}
 		};
 
 		std::vector<double> p = reg.predict(X_test);

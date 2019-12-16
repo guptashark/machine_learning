@@ -16,8 +16,6 @@
 
 using linear_model::LinearRegression;
 
-// TODO: properly handle the case where there is
-// a vector of vectors, each with length 1. (python style)
 LinearRegression &LinearRegression::fit
 (const array_like &X, const std::vector<double> &y) {
 
@@ -34,31 +32,33 @@ LinearRegression &LinearRegression::fit
 	}
 
 	using stat_util_experimental::mean;
-	using stat_util::cov;
+	using stat_util_experimental::cov;
 
 	if ( XT.size() > 2 ) {
-		std::cout << "Error: too many variables!" << std::endl;
-		return *this;
+		throw "too many variables!";
 	}
 
 	const std::size_t n = XT.size();
-	const double y_mean = mean({y});
-	std::vector<double> x_means = mean({ XT, .axis=1});
-	std::vector<double> x_y_cov; // covariances of each x col with y.
 
-	for(std::size_t i = 0; i < n; i++) {
-		x_y_cov.push_back( cov(XT[i], y, x_means[i], y_mean) );
-	}
+	XT.push_back(y);
 
 	// bias bc we want to divide by N, not N-1
-	Matrix A ( stat_util_experimental::cov({XT, .bias=true}) );
+	array_like covariances = cov({XT, .bias=true});
 
 	// Solving Ax = b
 	Matrix B ( n, 1);
 
 	for (std::size_t i = 0; i < n ; i++) {
-		B[i][0] = x_y_cov[i];
+		B[i][0] = covariances.back()[i];
 	}
+
+	covariances.pop_back();
+
+	for( std::vector<double> & row : covariances ) {
+		row.pop_back();
+	}
+
+	Matrix A ( covariances );
 
 	Matrix sln = A.inverse() * B;
 
@@ -69,7 +69,9 @@ LinearRegression &LinearRegression::fit
 		coef_.push_back( sln[i][0] );
 	}
 
-	intercept_ = y_mean;
+	intercept_ = mean({y});
+
+	std::vector<double> x_means = mean({ XT, .axis=1});
 
 	for(std::size_t i = 0; i < n ; i++) {
 		intercept_ += (-1.0) * coef_[i] * x_means[i];
@@ -80,19 +82,17 @@ LinearRegression &LinearRegression::fit
 
 std::vector<double> LinearRegression::predict
 (const array_like &X) {
+
 	std::vector<double> predictions;
 
-	std::size_t num_rows = X[0].size();
+	for (const std::vector<double> & row : X) {
 
-	for (std::size_t i = 0; i < num_rows; i++) {
+		double r = intercept_ ;
 
-		double r = 0.0;
-
-		for (std::size_t j = 0; j < X.size(); j++) {
-			r += X[j][i] * coef_.at(j);
+		for (std::size_t j = 0; j < row.size(); j++) {
+			r += row[j] * coef_.at(j);
 		}
 
-		r += intercept_ ;
 		predictions.push_back(r);
 	}
 
@@ -107,17 +107,11 @@ double linear_model::LinearRegression::score
 	// v = sum((y_true - y_mean) ** 2) = n * variance(y)
 
 	double u = 0.0;
+	std::vector<double> predictions = predict(X);
 
 	for (std::size_t i = 0; i < y.size() ; i++) {
-
-		double y_pred_i = intercept_;
-
-		for (std::size_t j = 0; j < coef_.size(); j++) {
-			y_pred_i += coef_[j] * X[i][j];
-		}
-
-		u += std::pow(y[i] - y_pred_i, 2) ;
+		u += std::pow(y[i] - predictions[i], 2) ;
 	}
 
-	return 1.0 - u / (y.size() * stat_util::var(y));
+	return 1.0 - u / (y.size() * stat_util_experimental::var({y}));
 }
