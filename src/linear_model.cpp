@@ -21,31 +21,37 @@ using linear_model::LinearRegression;
 LinearRegression &LinearRegression::fit
 (const array_like &X, const std::vector<double> &y) {
 
-	using stat_util::mean;
-	using stat_util::var;
+	// best option - make a copy of X, call it XT (X transposed)
+	array_like XT;
+	for ( std::size_t i = 0; i < X.front().size(); i++) {
+		XT.push_back(std::vector<double>(X.size()));
+	}
+
+	for(std::size_t i = 0; i < X.size(); i++) {
+		for ( std::size_t j = 0; j < X.front().size(); j++) {
+			XT[j][i] = X[i][j];
+		}
+	}
+
+	using stat_util_experimental::mean;
 	using stat_util::cov;
 
-	if ( X.size() > 2 ) {
+	if ( XT.size() > 2 ) {
 		std::cout << "Error: too many variables!" << std::endl;
 		return *this;
 	}
 
-	const std::size_t n = X.size();
-	const double y_mean = mean(y);
-	std::vector<double> x_means; // mean of each column.
+	const std::size_t n = XT.size();
+	const double y_mean = mean({y});
+	std::vector<double> x_means = mean({ XT, .axis=1});
 	std::vector<double> x_y_cov; // covariances of each x col with y.
 
-	// separate loops to avoid recalculating means to find covariances.
 	for(std::size_t i = 0; i < n; i++) {
-		x_means.push_back( mean(X[i]) );
-	}
-
-	for(std::size_t i = 0; i < n; i++) {
-		x_y_cov.push_back( cov(X[i], y, x_means[i], y_mean) );
+		x_y_cov.push_back( cov(XT[i], y, x_means[i], y_mean) );
 	}
 
 	// bias bc we want to divide by N, not N-1
-	Matrix A ( stat_util_experimental::cov({X, .bias=true}) );
+	Matrix A ( stat_util_experimental::cov({XT, .bias=true}) );
 
 	// Solving Ax = b
 	Matrix B ( n, 1);
@@ -107,7 +113,7 @@ double linear_model::LinearRegression::score
 		double y_pred_i = intercept_;
 
 		for (std::size_t j = 0; j < coef_.size(); j++) {
-			y_pred_i +=  coef_[j] * X[j][i];
+			y_pred_i += coef_[j] * X[i][j];
 		}
 
 		u += std::pow(y[i] - y_pred_i, 2) ;

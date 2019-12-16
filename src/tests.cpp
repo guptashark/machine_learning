@@ -36,16 +36,12 @@ void test_linear_model(void) {
 
 	{
 		std::vector<std::vector<double> > X = {
-			{1., 2., 3., 4., 5.}
-		};
-
-		std::vector<std::vector<double> > X_py_style = {
 			{1.}, {2.}, {3.}, {4.}, {5.}
 		};
 
 		std::vector<double> y;
-		for ( double x_i : X[0] ) {
-			y.push_back(x_i * 2.0 + 4.0);
+		for ( std::vector<double> & r : X ) {
+			y.push_back(r[0] * 2.0 + 4.0);
 		}
 
 		auto reg = linear_model::LinearRegression{}.fit(X, y);
@@ -68,14 +64,16 @@ void test_linear_model(void) {
 	// without having to print to file.
 	{
 		std::vector<std::vector<double> > X = {
-			{1.0, 1.0, 2.0, 3.0},
-			{4.0, 7.0, 6.0, 11.0}
+			{1, 4},
+			{1, 7},
+			{2, 6},
+			{3, 11},
 		};
 
 		std::vector<double> y;
 
-		for(std::size_t i = 0; i < X[0].size(); i++) {
-			y.push_back(4.0 * X[0][i] - 2.0 * X[1][i] -9.0);
+		for( std::vector<double> & r : X ) {
+			y.push_back(4.0 * r[0] - 2.0 * r[1] -9.0);
 		}
 
 		auto reg = linear_model::LinearRegression{}.fit(X, y);
