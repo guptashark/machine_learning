@@ -49,7 +49,7 @@ namespace stat_util_experimental {
 					col_mean += ma.a[i][j];
 				}
 
-				averages.push_back(col_mean / n);
+				averages.push_back(col_mean / m);
 			}
 		} else {
 			// throw an exception.
@@ -122,6 +122,71 @@ namespace stat_util_experimental {
 
 	std::vector<std::vector<double> >
 	cov(struct cov_args ma) {
+
+		// columns are variables (as standard python)
+		// rows are observations.
+		// number of columns is the size of the output covs matrix.
+		// m is the number of rows.
+		// n is the number of columns.
+		// we have a vector of row vectors.
+		if ( ma.rowvar == false ) {
+			std::size_t m = ma.a.size();
+			const std::size_t n = ma.a[0].size();
+
+			array_like covs(n, std::vector<double>(n));
+			// axis is 0, means take averages down a column.
+			// is this even implemented yet??
+			std::vector<double> means = mean( {ma.a, .axis=0} );
+
+			const array_like & A = ma.a;
+
+			// first do the diagonal
+			for(std::size_t i = 0; i < m; i++) {
+
+				for ( std::size_t j = 0; j < n; j++) {
+					double term = A[i][j] - means[j];
+
+					covs[j][j] += term * term;
+				}
+			}
+
+			for ( std::size_t j = 0; j < n; j++) {
+				if ( ma.bias == false ) {
+					covs[j][j] /= (m - 1);
+				} else {
+					covs[j][j] /= m;
+				}
+			}
+
+			// now do the other parts, the middles.
+			for(std::size_t i = 0; i < n; i++) {
+				for(std::size_t j = i + 1; j < n; j++) {
+
+					double c = 0.0;
+
+					for(std::size_t k = 0; k < m; k++) {
+
+						double i_term = A[k][i]-means[i];
+						double j_term = A[k][j]-means[j];
+
+						c += i_term * j_term;
+					}
+
+					if ( ma.bias == false) {
+						covs[i][j] = c / (m - 1);
+						covs[j][i] = c / (m - 1);
+					} else {
+						covs[i][j] = c / m;
+						covs[j][i] = c / m;
+					}
+				}
+			}
+
+			return covs;
+		}
+
+
+		// the else case - rowvar is true (default)
 
 		const std::size_t n = ma.a.size(); 	// rows
 		std::size_t m = ma.a[0].size(); 	// columns

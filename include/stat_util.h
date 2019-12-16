@@ -23,6 +23,7 @@ namespace stat_util_experimental {
 
 	struct cov_args {
 		const array_like &a;
+		bool rowvar = true;
 		bool bias = false;
 	};
 
