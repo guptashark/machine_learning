@@ -6,78 +6,30 @@
 #include "stat_util.h"
 #include "tests.h"
 
-// Helpful for printing stuff!
-static void v_prnt(const std::vector<double> &v) {
+using array_like = std::vector<std::vector<double> >;
 
-	std::cout << "[";
-
-	for ( std::size_t i = 0; i < v.size() - 1; i++ ) {
-		std::cout << v[i] << ", ";
-	}
-
-	std::cout << v[v.size() - 1] << "]" << std::endl;
-}
-
-static void arr_2d_prnt(std::vector<std::vector<double> > & A) {
-
-	std::cout << "Begin matrix:" << std::endl;
-
-	for ( std::vector<double> & v : A ) {
-		v_prnt ( v );
-	}
-
-	std::cout << "End matrix" << std::endl;
-}
-
-
-
+static void test_mean(void);
+static void test_var(void);
 static void test_cov(void);
 
 void test_stat_util(void) {
 
-	test_cov();
-
-	using stat_util_experimental::mean;
-	using stat_util_experimental::var;
-
-	std::vector<std::vector<double> > X_2d = {
-		{1, 2},
-		{3, 4}
-	};
-
 	// TODO : check this out.
-	// These assertions will work because
+	// These assertions in these fn's work bc
 	// none of the computations are ever
 	// dealing with repeating decimals,
 	// so we never encounter any inaccuracies.
 	// ie, not doing (1.0 / 3.0) * 3.0.
-	{
-		auto res = mean({X_2d, 0});
-		assert(res.size() == 2);
-		assert(res[0] == 2);
-		assert(res[1] == 3);
-	}
+	//
+	// However, some inaccurances still slip
+	// through, and the assertions fail. It's
+	// also a bad idea to rely on well behaved
+	// floating point behavior so we need to
+	// do better.
 
-	{
-		auto res = mean({.a=X_2d, .axis=1});
-		assert(res.size() == 2);
-		assert(res[0] == 1.5);
-		assert(res[1] == 3.5);
-	}
-
-	{
-		auto res = var({X_2d, 0});
-		assert(res.size() == 2);
-		assert(res[0] == 1);
-		assert(res[1] == 1);
-	}
-
-	{
-		auto res = var({X_2d, 1});
-		assert(res.size() == 2);
-		assert(res[0] == 0.25);
-		assert(res[1] == 0.25);
-	}
+	test_mean();
+	test_var();
+	test_cov();
 }
 
 void test_linear_model(void) {
@@ -91,53 +43,99 @@ void test_linear_model(void) {
 			{1.}, {2.}, {3.}, {4.}, {5.}
 		};
 
-		std::vector<double> y = {
-			1.5, 1.7, 3.2, 4.5, 5.19
-		};
+		std::vector<double> y;
+		for ( double x_i : X[0] ) {
+			y.push_back(x_i * 2.0 + 4.0);
+		}
 
 		auto reg = linear_model::LinearRegression{}.fit(X, y);
-		std::cout << "Coef" << std::endl;
-		std::cout << reg.coef_[0] << std::endl;
-		std::cout << "Intercept" << std::endl;
-		std::cout << reg.intercept_ << std::endl;
-		std::cout << "Score" << std::endl;
-		std::cout << reg.score(X, y) << std::endl;
+		assert( 2.0 == reg.coef_[0] );
+		assert( 4.0 == reg.intercept_ );
+		assert( 1.0 == reg.score(X, y) );
 
-		std::vector<double> p = reg.predict(X);
-		for (auto val : p  ) std::cout << val << " ";
-		std::cout << std::endl;
+		std::vector<std::vector<double> > X_test = {
+			{ -9.0, -2.0, 0.0, 1000.0 }
+		};
+
+		std::vector<double> p = reg.predict(X_test);
+		std::vector<double> y_test = { -14.0, 0.0, 4.0, 2004.0};
+
+		assert(p == y_test);
+	}
+
+	// TODO : Make this stuff a lot more robust.
+	// Do some floating point tests with not nice numbers,
+	// without having to print to file.
+	{
+		std::vector<std::vector<double> > X = {
+			{1.0, 1.0, 2.0, 3.0},
+			{4.0, 7.0, 6.0, 11.0}
+		};
+
+		std::vector<double> y;
+
+		for(std::size_t i = 0; i < X[0].size(); i++) {
+			y.push_back(4.0 * X[0][i] - 2.0 * X[1][i] -9.0);
+		}
+
+		auto reg = linear_model::LinearRegression{}.fit(X, y);
+
+		assert( 4.0 == reg.coef_[0] );
+		assert( -2.0 == reg.coef_[1] );
+		assert( -9.0 == reg.intercept_ );
+		assert( 1.0 == reg.score(X, y));
+	}
+}
+
+static void test_mean(void) {
+	using stat_util_experimental::mean;
+
+	std::vector<std::vector<double> > X = {
+		{1, 2},
+		{3, 4}
+	};
+
+	{
+		auto res = mean({X, 0});
+		assert(res.size() == 2);
+		assert(res[0] == 2);
+		assert(res[1] == 3);
 	}
 
 	{
-		std::vector<std::vector<double> > X = {
-			{0.9, 2.3, 3.1, 3.7, 5.4},
-			{1.3, 2.9, 3.7, 4.4, 5.8}
-		};
+		auto res = mean({.a=X, .axis=1});
+		assert(res.size() == 2);
+		assert(res[0] == 1.5);
+		assert(res[1] == 3.5);
+	}
+}
 
-		std::vector<std::vector<double> > X_py_style = {
-			{0.9, 1.3},
-			{2.3, 2.9},
-			{3.1, 3.7},
-			{3.7, 4.4},
-			{5.4, 5.8}
-		};
+static void test_var(void) {
+	using stat_util_experimental::var;
 
-		std::vector<double> y = {
-			5.5, 10.9, 14.0, 22.3, 27.1
-		};
+	std::vector<std::vector<double> > X = {
+		{1, 2},
+		{3, 4}
+	};
 
-		auto reg = linear_model::LinearRegression{}.fit(X, y);
+	// TODO : check this out.
+	// These assertions will work because
+	// none of the computations are ever
+	// dealing with repeating decimals,
+	// so we never encounter any inaccuracies.
+	// ie, not doing (1.0 / 3.0) * 3.0.
+	{
+		auto res = var({X, 0});
+		assert(res.size() == 2);
+		assert(res[0] == 1);
+		assert(res[1] == 1);
+	}
 
-		std::cout << "Coef" << std::endl;
-		std::cout << reg.coef_[0] << " " << reg.coef_[1] << std::endl;
-		std::cout << "Intercept" << std::endl;
-		std::cout << reg.intercept_ << std::endl;
-		std::cout << "Score" << std::endl;
-		std::cout << reg.score(X, y) << std::endl;
-
-		std::vector<double> p = reg.predict(X);
-		for (auto val : p  ) std::cout << val << " ";
-		std::cout << std::endl;
+	{
+		auto res = var({X, 1});
+		assert(res.size() == 2);
+		assert(res[0] == 0.25);
+		assert(res[1] == 0.25);
 	}
 }
 
@@ -145,42 +143,33 @@ static void test_cov(void) {
 
 	using stat_util_experimental::cov;
 
-	std::vector<std::vector<double> > X_0 = {
-		{1, 2, 3, 4, 5, 6, 7},
-		{4, 5, 6, 7, 8, 9, 10},
-		{9, 9, 9, 9, 9, 9, 9}
-	};
+	// while we're figuring it out, we'll only
+	// do tests with nice round whole numbers, that still
+	// guarantee that the function computation is correct.
 
-	(void)X_0;
-
-	std::vector<std::vector<double> > X_1 = {
-		{0, 1, 2},
-		{2, 1, 0},
-	};
-	auto r = cov ( {X_1} );
-
-	arr_2d_prnt(r);
 	{
 		std::vector<std::vector<double> > X = {
-			{-2.1, -1, 4.3},
-			{3, 1.1, 0.12},
+			{0, 1, 2},
+			{2, 1, 0},
 		};
 
-		auto r = cov ({X});
-		arr_2d_prnt(r);
+		array_like ans = {{1, -1}, {-1, 1}};
+		assert(cov( {X} ) == ans );
 	}
 
+	{
+		std::vector<std::vector<double> > X = {
+			{0, 2},
+			{1, 1},
+			{2, 0}
+		};
+
+		array_like ans = {{1, -1}, {-1, 1}};
+		assert(cov( {X, .rowvar=false} ) == ans );
+	}
 }
 
 void test_matrix(void) {
 
-	std::vector<std::vector<double> > X = {
-		{1, 2},
-		{3, 4},
-		{5, 6},
-		{7, 8, 9}
-	};
-
-	Matrix m(X);
-	m.print();
+	// do nothing, not yet written good tests.
 }
