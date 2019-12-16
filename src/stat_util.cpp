@@ -2,12 +2,11 @@
 
 #include "stat_util.h"
 
-namespace stat_util_experimental {
 
 	using array_like = std::vector<std::vector<double> >;
 
 	double
-	mean ( struct mean_args_C ma) {
+	stat_util_experimental::mean ( struct mean_args_C ma) {
 
 		double sum = 0;
 		for ( auto val : ma.a ) {
@@ -23,7 +22,7 @@ namespace stat_util_experimental {
 	// nesting too deep. Also makes sense, since the
 	// logic seems fairly similar.
 	std::vector<double>
-	mean(struct mean_args_A ma) {
+	stat_util_experimental::mean(struct mean_args_A ma) {
 
 		if ( ! ma.axis.has_value() ) {
 			// TODO can't compute, need to throw excp.
@@ -60,7 +59,7 @@ namespace stat_util_experimental {
 	}
 
 	double
-	var ( struct mean_args_C ma) {
+	stat_util_experimental::var ( struct mean_args_C ma) {
 
 		// TODO - optimize this, so we don't recompute means.
 		// inefficient for now, but it's okay, optimize later.
@@ -76,7 +75,7 @@ namespace stat_util_experimental {
 	}
 
 	std::vector<double>
-	var(struct mean_args_A ma) {
+	stat_util_experimental::var(struct mean_args_A ma) {
 
 		if ( ! ma.axis.has_value() ) {
 			// TODO can't compute, need to throw excp.
@@ -121,7 +120,7 @@ namespace stat_util_experimental {
 	}
 
 	std::vector<std::vector<double> >
-	cov(struct cov_args ma) {
+	stat_util_experimental::cov(struct cov_args ma) {
 
 		// columns are variables (as standard python)
 		// rows are observations.
@@ -234,16 +233,12 @@ namespace stat_util_experimental {
 
 		return covs;
 	}
-}
 
-namespace stat_util {
-
-	using array_like = std::vector<std::vector<double> >;
 
 	// i is the index of the column.
 	// is this overload necessary?
 	double
-	mean
+	stat_util::mean
 	(const array_like &X, std::size_t i) {
 		double s = 0.0;
 		for (auto i : X[i]) s += i;
@@ -251,7 +246,7 @@ namespace stat_util {
 	}
 
 	double
-	mean
+	stat_util::mean
 	(const std::vector<double>& v) {
 		double s = 0.0;
 		for(auto i : v) s += i;
@@ -259,7 +254,7 @@ namespace stat_util {
 	}
 
 	double
-	var
+	stat_util::var
 	(const std::vector<double>& v, double v_mean) {
 		double s = 0.0;
 		for ( auto i : v ) s+= ( i - v_mean ) * ( i - v_mean);
@@ -267,7 +262,7 @@ namespace stat_util {
 	}
 
 	double
-	var
+	stat_util::var
 	(const std::vector<double>& v) {
 		double v_mean = mean(v);
 		return var(v, v_mean);
@@ -277,7 +272,7 @@ namespace stat_util {
 	// that hold the cols of the variables we want
 	// the covariance of.
 	double
-	cov
+	stat_util::cov
 	(const array_like &X, std::size_t i, std::size_t j) {
 
 		const std::vector<double>& v1 = X[i];
@@ -294,7 +289,8 @@ namespace stat_util {
 	}
 
 	// overload
-	double cov
+	double
+	stat_util::cov
 	(const std::vector<double>& x1, const std::vector<double>& x2,
 	 double x1_mean, double x2_mean)
 	{
@@ -309,7 +305,7 @@ namespace stat_util {
 
 	// overload
 	double
-	cov
+	stat_util::cov
 	(const std::vector<double>& x1, const std::vector<double>& x2) {
 
 		double x1_mean = mean(x1);
@@ -317,4 +313,3 @@ namespace stat_util {
 
 		return cov(x1, x2, x1_mean, x2_mean);
 	}
-}
