@@ -193,5 +193,29 @@ static void test_cov(void) {
 
 void test_matrix(void) {
 
-	// do nothing, not yet written good tests.
+	// test addition
+	{
+		Matrix A = { {1, 2}, {3, 4} };
+		Matrix B = { {6, 7}, {8, 9} };
+		Matrix C = { {7, 9}, {11, 13} };
+
+		assert ( (A + B) == C);
+	}
+
+	// test multiplication
+	{
+		Matrix A = { {1, 2}, {3, 4} };
+		Matrix B = { {2, 4}, {6, 8} };
+
+		assert ( 2 * A == B);
+		assert ( A * 2 == B);
+	}
+
+	// test transpose.
+	{
+		Matrix A = { {1, 2}, {3, 4} };
+		Matrix B = { {1, 3}, {2, 4} };
+
+		assert( A.transpose() == B);
+	}
 }
