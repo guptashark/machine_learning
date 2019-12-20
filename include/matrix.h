@@ -8,7 +8,7 @@ private:
 	std::vector<std::vector<double> > elements;
 public:
 	// creates a zeroed matrix of this size.
-	Matrix(std::size_t rows, std::size_t);
+	Matrix(std::size_t rows, std::size_t cols);
 
 	Matrix(const Matrix& B);
 
@@ -29,7 +29,9 @@ public:
 	friend Matrix operator*(const Matrix& A, const double d);
 	friend Matrix operator*(const double d, const Matrix& A);
 
+	// these methods create whole new matrices.
 	Matrix inverse(void) const;
+	Matrix transpose(void) const;
 
 	std::vector<double>& operator[](std::size_t row);
 	const std::vector<double>& operator[](std::size_t row) const;

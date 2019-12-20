@@ -170,6 +170,19 @@ Matrix Matrix::inverse(void) const {
 	return (1.0 / determinant) * ret;
 }
 
+Matrix Matrix::transpose(void) const {
+
+	Matrix ret(num_cols(), num_rows());
+
+	for (std::size_t i = 0; i < num_rows(); i++) {
+		for(std::size_t j = 0; j < num_cols(); j++) {
+			ret[j][i] = (*this)[i][j];
+		}
+	}
+
+	return ret;
+}
+
 std::vector<double>&
 Matrix::operator[](std::size_t row) {
 	return elements[row];
