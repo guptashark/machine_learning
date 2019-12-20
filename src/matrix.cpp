@@ -128,6 +128,27 @@ Matrix operator*(const double d, const Matrix& A) {
 	return A * d;
 }
 
+bool operator==(const Matrix & A, const Matrix & B) {
+
+	if ( A.num_rows() != B.num_rows()) {
+		return false;
+	}
+
+	if ( A.num_cols() != B.num_cols()) {
+		return false;
+	}
+
+	for ( std::size_t i = 0; i < A.num_rows(); i++) {
+		for ( std::size_t j = 0; j < A.num_cols(); j++) {
+			if ( A[i][j] != B[i][j] ) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
 Matrix Matrix::inverse(void) const {
 	// right now, only support 2x2 matrix.
 	std::size_t r = num_rows();

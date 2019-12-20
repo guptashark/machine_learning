@@ -29,6 +29,8 @@ public:
 	friend Matrix operator*(const Matrix& A, const double d);
 	friend Matrix operator*(const double d, const Matrix& A);
 
+	friend bool operator==(const Matrix & A, const Matrix & B);
+
 	// these methods create whole new matrices.
 	Matrix inverse(void) const;
 	Matrix transpose(void) const;
